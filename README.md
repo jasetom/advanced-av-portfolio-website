@@ -1,6 +1,6 @@
 # Advanced-av-portfolio-website
 
-This is a repository for my final year Creative Computing module called Advanced Audio Visual Processing at Goldsmiths, University of London. Portfolio can be accessed at [av.tomasj.uk](https://www.av.tomasj.uk).
+This is a repository for my final year Creative Computing module called Advanced Audio Visual Processing at Goldsmiths, University of London. Portfolio can be accessed at [av.tomasj.uk](https://av.tomasj.uk).
 
 This repository contains:
 * Nodejs web server using express.js
