@@ -11,4 +11,4 @@ To run it locally you need:
 * Have nodejs on your machine
 * Clone this repository
 * Start up node server uping "node app.js"
-* Go to http://localhost:80/
+* Go to http://localhost:3000/
