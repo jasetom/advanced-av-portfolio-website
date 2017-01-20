@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Advanced Audio-Visual Processing Portfolio website build by Tomas Jasevicius. Goldsmiths, University of London 2016.">
+    <meta name="author" content="Tomas Jasevicius">
+
+    <title>Advanced AV Portfolio - Tomas Jasevicius </title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Theme CSS -->
+    <link href="css/advancedAv-theme.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Merriweather:400,700" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="col-lg-12">
+                <div class="page-header">
+                    <h1>Advanced Audio-Visual Processing</h1>
+                    <h2> by Tomas Jasevicius</h2>
+                    <br>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <div class="container">
+        <div class="col-lg-12 text-center">
+        <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="project-box">
+                    <p>This website is a collection of examples of advanced audiovisual topics learned in "Advanced Audio Visual Processing" class at Goldsmiths, University of London. Below you can find 4 small examples of sound and computer graphics synthesis in your browser. The projects below uses various libraries such as P5.js, ProjecssingJs and THREE.js for the visual side, while library called Maximillian is used to synthesise and play the sounds. Down below, please find 4 basic examples and 1 bigger project that I have done for my class to fit this <a href="http://doc.gold.ac.uk/~mus02mg/AVPcoursework.pdf" target = "blank">brief</a>.</p>
+                    <div class ="row">
+                        <div class="col-sm-6"> <a href= "https://github.com/jasetom/advanced-av-portfolio-website" target="blank">Github</a></div>
+                        <div class="col-sm-6"> <a href= "/uploads/advanced-av-projects.zip" download>Download .zip of all the projects</a></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-6">
+                <div class="project-box">
+                    <h4>Audio synthesis using Maximillian</h4>
+                    <p>This project demonstrates audio synthesis using Maximillian library. Down below you can find three 30 second audio pieces generated using sine waves, sawn waves, triangle waves, filters and phasors. To generate these sounds methos such as additive synthesis, substraction synthesis and filtering were used.
+                    </p>
+                    <div class ="row">
+                        <div class="col-sm-12"> <a href= "project1.html">Preview</a></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-6">
+                <div class="project-box">
+                    <h4>Interactive audio synthesis using FMOsc</h4>
+                    <p>This project demonstrates interactive audio synthesis using FMOsc which is build using Maximillian library. In order to sythesise the sound user is asked to use the settings on the right hand side. When adjusting the settings we will hear different synthesised sounds and it's wave forms shown on the left.
+                    </p>
+                    <div class ="row">
+                        <div class="col-sm-12"> <a href= "project2.html">Preview</a></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-6">
+                <div class="project-box">
+                    <h4> Audio visualisations using Fast Fourier Transform</h4>
+                    <p>This project demonstrates audio visualisation posibilities using Fast Fourier Transform (FFT) on an audio file and HTML5 canvas elements with the help of Javascript. All you have to do is chose a song and then browse between 7 varying precoded visualisations of different complexity.
+                    </p>
+                    <div class ="row">
+                        <div class="col-sm-12"> <a href= "project3.html">Preview</a></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-6">
+                <div class="project-box">
+                    <h4>Particle system and 3D object sculpting</h4>
+                    <p>This project demonstrates interactive particle system in 3d space. It also includes a 3D object which can be altered in real-time using controls on the right hand side. The project was created using Three.js library which is an amazing tool that lets your browser to access the GPU of your computer.
+                    </p>
+                    <div class ="row">
+                        <div class="col-sm-12"> <a href= "project4.html">Preview</a></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-12 col-md-12 col-sm-12">
+                <div class="project-box">
+                    <h4>Main project - Audio visualiser</h4>
+                    <p>For my final project, I have built this interactive audiovisual composition using Three.js and Maximillian in JavaScript. It demonstrates sound reactive environment which utilises 3d space to visualise audio. Visuals are built using WebGL implemented via Three.js which is much faster to render in your web browser compared to processing.js or p5.js which I've used in my previous examples. The audio analysis is done using Maximillian sound library for JavaScript.
+                    <br>
+                    The idea behind this project is to create an audio-visual experience for the selected soundtrack provided by SoulSonic. And so I have achieved it by creating virtual 3d space in which various geometrical shapes, colours, and filters are affected by audio input and merged together to produce visually stimulating experience. Various parameters of graphical elements are manipulated by selected magnitude values of bins returned by the FFT after analysing the soundtrack. I have also used a very basic algorithm for beat detection which is used to control some actions such as applying post-processing shaders in the composition. Another thing that I've incorporated into the project was spectral centroid analysis on the FFT which detects the “brightness” of the sound. The latter is being used to control colour changes in the scene.
+                    <br>
+                    To sum this all up I would like to say that I have learned a lot about virtual 3D space creation and manipulation using inputs from analysed sound and I can see myself working on similar projects in the future as they can provide a really strong visual experience for the musicians who want to promote their music.
+                    </p>
+                    <div class ="row">
+                        <div class="col-sm-12"> <a href= "project5.html">Preview</a></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="text-center">
+        <p class="white-text"> © 2017 <a href="http://tomasj.uk" target="blank" style="color:#fff; text-decoration: underline;">Tomas Jasevicius</a>. Goldsmiths, Univeristy of London.</p>
+    </footer>
+       <!-- JQuery is required by Bootstrap-->
+    <script src="javascripts/jquery-1.9.1.min.js"></script>
+   
+    <!-- Bootstrap Core JavaScript -->
+    <script src="javascripts/bootstrap.min.js"></script>
+
+</body>
+
+</html>

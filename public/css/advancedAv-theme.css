@@ -1,0 +1,238 @@
+
+/* 
+    Colour scheme:
+    White:      #DCDCDD
+    Gray:       #C5C3C6
+    Background: #46494C
+    Blue:       #4C5C68
+    Light Blue: #1985A1
+*/
+
+/* General */
+body {
+  margin: 0;
+  background: #1985A1;
+}
+
+p {
+  color: #4C5C68;
+}
+
+.white-text {
+  color: white;
+}
+
+/* Header */
+.page-header {
+  padding-bottom: 9px;
+  margin: 40px 0 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.page-header-project {
+  padding-bottom: 9px;
+  margin-top: 40px;
+  border-bottom: 1px solid #eee;
+}
+
+h1{
+    text-align: center;
+    color: white;
+}
+h2{
+  margin-top: -0.3em;
+  margin-bottom: -0.1em;
+  text-align: center;
+  font-family:Lato;
+  color: white;
+}
+
+/* Navigation */
+.nav{
+background: white;
+
+}
+
+
+/* Main */
+
+.project-box{
+border: 1px solid #C5C3C6;
+background: #fff;
+margin-bottom: 2em;
+-webkit-box-shadow: 0 3px 8px rgba(0, 0, 0, .25);
+-moz-box-shadow: 0 3px 8px rgba(0, 0, 0, .25);
+box-shadow: 0 3px 8px rgba(0, 0, 0, .25);
+padding: 1em;
+
+}
+
+.project-box h4{
+  color:black;
+}
+
+.project-box .row{
+margin-bottom: 0.5em;
+} 
+
+.project-body{
+  margin-top: 1em;
+  margin-bottom: 10em;
+}
+
+footer{
+  margin-top: 10em;
+}
+
+.round-box{
+  padding-top: 0.5em;
+  border-radius: 25px;
+  background: white;
+  margin-bottom: 2em;
+  box-shadow: 20px 2px 80px #4C5C68;
+}
+
+/* Project 2 */
+
+.displayP5{
+  border: 0px;
+  height: 400px;
+  width: 750px;
+}
+.h4{
+  color:white;
+  size: 20px;
+
+}
+
+/* Project 3 */
+.btn{
+  background: white;
+}
+
+.center-block {float: none !important}
+
+.setup{
+  height: 450px;
+  background: white;
+  padding-top: 5em;
+  }
+
+.showCanvas{
+  height: 450px;
+  background: black;
+  padding-top: 0.2em;
+  }  
+
+#prog{
+  color: #4C5C68;
+}
+
+.default-sound{
+  margin-bottom:2em; 
+}
+
+.upload-btn{
+  margin-bottom:2em; 
+}
+
+.progress {
+    background-color: grey;
+}
+.progress-bar {
+    background-color: green;
+}
+
+.displayThreejs{
+  border: 0px;
+  height: 600px;
+  width: 1000px;
+}
+
+#startMenu {
+  position: absolute;
+  top: 20%;
+  width: 100%;
+  text-align: center;
+  z-index: 1;
+  display:block;
+}
+#endMenu {
+  position: absolute;
+  top: 20%;
+  width: 100%;
+  text-align: center;
+  z-index: 1;
+  display:block;
+}
+
+#endMenu h1{
+  margin-top: 0px;
+}
+
+#endMenu p{
+  margin-top: 0px;
+  font-size: 16px;
+}
+
+#endMenu h2{
+  margin-top: 10px;
+  margin-bottom: 10px;
+  font-size: 32px;
+}
+
+
+#loaderTxt {
+  position: absolute;
+  left: 47.8%;
+  top: 117%;
+  z-index: 1;
+  width: 50px;
+  height: 50px;
+  color: #ffffff;
+}
+#loader {
+  position: absolute;
+  left: 51%;
+  top: 125%;
+  z-index: 1;
+  width: 50px;
+  height: 50px;
+  margin: -75px 0 0 -75px;
+  border-radius: 50%;
+  border-top: 5px solid #ffffff;
+  width: 100px;
+  height: 100px;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+  }
+
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+  /* Add animation to "Play button" */
+#scrollUpDiv {
+  position: relative;
+  -webkit-animation-name: scrollUp;
+  -webkit-animation-duration: 1s;
+  animation-name: scrollUp;
+  animation-duration: 1s
+}
+
+@-webkit-keyframes scrollUp {
+  from { bottom:-10px; opacity:0 } 
+  to { bottom:0px; opacity:1 }
+}
+
+@keyframes scrollUp { 
+  from{ bottom:-10px; opacity:0 } 
+  to{ bottom:0; opacity:1 }
+}
+

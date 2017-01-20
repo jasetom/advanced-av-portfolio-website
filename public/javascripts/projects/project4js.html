@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset=utf-8>
+		<title>Project 4: Particle system using Three.js by Tomas Jasevicius</title>
+		<style>
+			body { margin: 0; }
+			canvas { width: 100%; height: 100% }
+		</style>
+
+	<!-- Three.js Library-->
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r83/three.js'></script>
+
+    <!-- Three.js Librarys example to control the camera -->
+    <script src='https://threejs.org/examples/js/controls/TrackballControls.js'></script>
+
+    <!--- dat.gui Graphical User Interface library -->
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.js'></script>
+
+	</head>
+	<body>
+
+	<script>
+	/*
+		Tomas Jasevicius - Advanced Audio Visual Processing 
+		Project 4 - Particle System using Three.js library.
+
+		I've built this project by learning and studying documentation at:
+		https://threejs.org/docs/
+
+		Graphical user interface is built using another library called dat.gui.
+		https://github.com/dataarts/dat.gui
+
+		There is a lot of boiler-plate code especially in setup as there are quite a
+		few things required to initialise all the time in order to setup scene using Three.js.
+		Process goes as follow: we initialise the scene, add camera to it, lights, geometry, materials
+		and then render everything onto the screen using renderer object. 
+	*/
+		
+		//variables to start off
+		var scene, camera, cameraControls, renderer, fog;
+
+		//gui
+		var params;
+
+		//geometry variables
+		var knotGeometry, knotMaterial, knot;
+		var particleSystem;
+
+		//lights
+		var ambientLight,pointLight;
+
+		//I call this function setup as I come from processing,
+		//it will initiallise required things at the beginning of the launch of the script.
+		function setup() {
+			//initialise eventhandler for window resizing
+			window.addEventListener('resize', onWindowResize, false);
+			
+			//initialise Gui
+			setupGui();
+
+			//setup scene
+			scene = new THREE.Scene();
+			//add fog effect to the scene
+			fog = scene.fog = new THREE.FogExp2(0x0, 0.005);//black fog
+
+			//setup renderer object and set its size and background color
+			renderer = new THREE.WebGLRenderer();
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			renderer.setClearColor(0x1985a1); //black
+			//add renderer object to the body of the HTML document
+			document.body.appendChild(renderer.domElement);
+
+			//setup camera
+			camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 10000);
+			camera.position.z=200;
+			camera.maxDistance = 200;
+			//setup camera controls, again alot of boilerplate code just to iniliasize controls
+			cameraControls = new THREE.TrackballControls(camera,renderer.domElement);
+			cameraControls.rotateSpeed = 1.0;
+			cameraControls.zoomSpeed = 1.2;
+			cameraControls.panSpeed = 0.8;
+			cameraControls.noZoom = false;
+			cameraControls.noPan = false;
+			cameraControls.maxDistance = 270;
+			cameraControls.staticMoving = true;
+			cameraControls.dynamicDampingFactor = 0.3;
+			cameraControls.addEventListener('change',render);
+
+			//creating pointlight and adding it to the scene
+			pointLight = new THREE.PointLight(0xffffff,0.7); // white
+			pointLight.position.set(-100, 0, 100);
+			scene.add(pointLight);
+			//creating ambient light which lights up all of the scene
+			ambientLight = new THREE.AmbientLight(params.aLight, 0.5);//soft white
+			scene.add(ambientLight);
+
+			//now we can create new knot geometry
+			knotGeometry = new THREE.TorusKnotGeometry(params.kRadius, params.kTube, params.kTubularSegments, params.kRadialSegments);
+			//create new material for this material
+			knotMaterial = new THREE.MeshLambertMaterial( { color: 0xCF27A2 } );
+			//finally create new mesh object named cube, add geometry and material to it.
+			knot = new THREE.Mesh(knotGeometry, knotMaterial );
+
+			//once knot is created add it to the scene.
+			scene.add(knot);
+
+			//create particles into an object and add it to the scene
+			allParticles = innitiateParticles();
+  			scene.add(allParticles);
+
+		}
+
+		//function to set up graphical user interface
+		function setupGui(){
+			//create parameters object which then be used by gui, and 
+			//as a parameter variables in the canvas.
+			params ={
+				//env parameter variables
+				bgColor: 0x1985a1,
+				aLight: 0xffffff,
+				pLight: 0x87c000,
+				fogColor: 0x2b48a7,
+				//particle parameters
+				pCol:0xffffff,
+				pSize:1.8,
+				pRotateX: 0.003,
+				pRotateY: 0.005,
+				pRotateZ: 0.005,
+				//knot params
+				kRadius: 19,
+				kTube: 14.6,
+				kTubularSegments: 83,
+				kRadialSegments: 2.8,
+				kp: 38,
+				kq: 24,
+				kCol:0xf50000
+
+			};
+
+			//variables to store information about env and particles
+			var env, prtcls, knot;
+
+			//use dat.gui lib to create new GUI object
+			var gui = new dat.GUI();
+
+			//add parameters to gui sliders and color pickers
+			//environment parameters
+			env = gui.addFolder('Environment');
+			env.addColor(params,'bgColor').name('Background').onChange(render);
+			env.addColor(params,'aLight').name('Ambient light').onChange(render);
+			env.addColor(params,'pLight').name('Point light').onChange(render);
+			env.addColor(params,'fogColor').name('Fog colour').onChange(render);
+			//particle parameters
+			prtcls = gui.addFolder('Particles');
+			prtcls.addColor(params,'pCol').name('Colour').onChange(render);
+			prtcls.add(params,'pSize',0, 5).name('Size').onChange(render);
+			prtcls.add(params,'pRotateX',0, 0.02).name('Rotation X').onChange(render);
+			prtcls.add(params,'pRotateY',0, 0.02).name('Rotation Y').onChange(render);
+			prtcls.add(params,'pRotateZ',0, 0.02).name('Rotation Z').onChange(render);
+			//knot parameters
+			knot = gui.addFolder('Shape');
+			knot.add(params,'kRadius',0, 100).name('Radius').onChange(render);
+			knot.add(params,'kTube',0, 50).name('Tube diameter').onChange(render);
+			knot.add(params,'kTubularSegments',0, 200).name('Tube segments').onChange(render);
+			knot.add(params,'kRadialSegments',0, 30).name('Radial segments').onChange(render);
+			knot.add(params,'kp',0, 50).name('Winds @ axis').onChange(render);
+			knot.add(params,'kq',0, 50).name('Winds @ circle').onChange(render);
+			knot.addColor(params,'kCol').name('Colour').onChange(render);
+
+		}
+
+		function innitiateParticles() {
+		    //how many particles we want
+		    var amount = 40000;
+		     //create new geometry to hold particles as they are just individual vertices
+		    var particles = new THREE.Geometry();
+			//create vertices positions for particles
+		    for (var i = 0; i < amount; i++) {
+				//for the amount set above, generate random x y and z positions for the vertices     
+		        var xpos = Math.random() * 600-300;
+		        var ypos = Math.random() * 600-300;
+		        var zpos = Math.random() * 600-300;
+		        //create new vector3 object to hold all of the vertex positions for each of the particles       
+		        var particle = new THREE.Vector3(xpos, ypos, zpos);
+		        particle.velocity = new THREE.Vector3(0,-Math.random(),0);
+				//add each of the particles vertices to the geometry.         
+		        particles.vertices.push(particle);
+		    }
+			//as with all the objects in threejs we need to set material so we could render particles onto the screen 
+		    var pMaterial = new THREE.PointsMaterial({
+		            color: params.pCol, //yellowish
+		            size: 1, //any size for now
+		            //loading up a texture that I've made in photoshop
+		            map: new THREE.TextureLoader().load("../../uploads/particle.png"),
+  					blending: THREE.AdditiveBlending,
+  					transparent: true //so we could see through it
+  				});
+		      
+		    // add all of the vertices with material to the point cloud.
+		    allParticles = new THREE.Points(particles, pMaterial);
+		 
+		    return allParticles;  
+		}
+
+		//function to reset camera and renderer if size of the window is changed.
+		function onWindowResize() {
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			cameraControls.handleResize();
+		}
+
+		//drawing everything to the screen
+		function draw() {
+			//this works similarry as setInterval() that I've used in my previous projects.
+			requestAnimationFrame(draw);
+			
+			cameraControls.update();
+			knot.rotation.z +=0.005;
+			knot.rotation.x +=0.005;
+
+			//setting values of the following to use values from the gui;
+			ambientLight.color.setHex(params.aLight);
+			pointLight.color.setHex(params.pLight);
+			renderer.setClearColor(params.bgColor);
+			fog.color.setHex(params.fogColor);
+			//setting particle parameters to be used from the gui
+			allParticles.material.color.setHex(params.pCol);
+			allParticles.material.size = params.pSize;
+  			allParticles.rotation.y += params.pRotateY;
+  			allParticles.rotation.z += params.pRotateZ;
+  			allParticles.rotation.x += params.pRotateX;
+
+  			//setting up knot controlls to gui
+  			//bascially we have to create new geometry everyframe to update its shape
+  			knot.geometry.dispose();
+  			knot.geometry = new THREE.TorusKnotGeometry(params.kRadius, params.kTube, params.kTubularSegments, params.kRadialSegments, params.kp,params.kq);
+
+  			knot.material.color.setHex(params.kCol);
+
+			//when calling draw, render everything to the screen.
+			render();
+		}
+		
+		function render(){
+			//we pass the objects that we want to be rendered,
+			//in this case it is the scene with all the meshes and a camera object
+			renderer.render(scene, camera);
+		}
+
+		//Lastly, run the setup function
+		setup();
+		//and draw everything 60 frames per second.
+		draw();
+		
+	</script>
+	</body>
+</html>

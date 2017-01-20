@@ -1,0 +1,204 @@
+<!--
+    Tomas Jasevicius - Advances Audio-Visual Processing
+    Project 2 - Interactive audio synthesis using Maximilian library 
+    implementing Frequency Modulation Oscilliator to modulate the sound. 
+    I also used P5.js library to visualise the output so the user could see 
+    what it looks like.
+    
+-->
+
+	<!-- p5.js Library -->
+    <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.5/p5.js"></script>
+    <script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.5/addons/p5.dom.js'></script>
+
+    <!-- Maxim.js Library -->
+    <script src='../maxiLib.js'></script>
+
+<!--Having my script down here because of the p5.dom.js library issues -->
+<script> 
+
+// Maxim variables
+//create maxim object
+var maxiAudio = new maximJs.maxiAudio();
+var osc1 = new maximJs.maxiOsc();
+var wave;
+maxiAudio.init();
+
+//variables for FMOsc
+var frequency;
+var carrierRatio = 1;
+var modulatorRatio = 1;
+var modulationIndex = 100;
+
+//play/stop playing button boolean
+var stop = true;
+
+//variables for switching wave types:
+var sine = true;
+var triangle, square, saw;
+
+//variables to draw the wave
+var drawArr = new Array(1024);
+var counter = 0;
+var spacing = 1;
+
+//variables for drawing canvas and sliders
+var canvas;
+var sldr1,sldr2,sldr3;
+
+var sldr1Val = 0;
+var sldr2Val = 0;
+var sldr3Val = 0;
+var sldr4Val = 0;
+
+//variables for placement of settings menu
+var settingsX, settingsY;
+var settingsTxt, sldr1Txt, sldr2Txt, sldr3Txt, waveTxt;
+
+var playBtn;
+
+//event handler for play button
+function play(){
+    stop =! stop;    
+}
+
+function setup() {
+	settingsX = 620;
+	settingsY = 0;
+	// drawing canvas
+	createCanvas(600, 400);
+    background(0);
+
+    //'wave type' text
+	waveTxt = createElement('p', 'Wave type:').position(settingsX, settingsY+20).style('color','#333');
+
+    //selection menu for wave types
+    sel = createSelect().position(settingsX,settingsY+60);
+    sel.option('Sine');
+    sel.option('Square');
+    sel.option('Triangle');
+    sel.option('Saw');
+
+  	//creating sliders
+  	sldr1 = createSlider(sldr1Val,1000, 169).position(settingsX, settingsY+100);
+    sldr2 = createSlider(sldr2Val,10, 1).position(settingsX, settingsY+150);
+    sldr3 = createSlider(sldr3Val,10, 6).position(settingsX, settingsY+200);
+    sldr4 = createSlider(sldr4Val,5000, 500).position(settingsX, settingsY+250);
+
+    //creating sliders' text fields
+  	sldr1Txt = createElement('p', '').position(settingsX, settingsY+105).id('sldr1Text').style('color','#333');
+  	sldr2Txt = createElement('p', '').position(settingsX, settingsY+155).id('sldr2Text').style('color','#333');
+  	sldr3Txt = createElement('p', '').position(settingsX, settingsY+205).id('sldr3Text').style('color','#333');
+    sldr4Txt = createElement('p', '').position(settingsX, settingsY+255).id('sldr4Text').style('color','#333');
+
+    playBtn = createButton('Play/Stop').position(settingsX, settingsY+300);
+    playBtn.mouseReleased(play);
+ 
+}
+
+//selecting wave function
+function selectWave() {
+    var wave = sel.value();
+    if(wave==='Sine'){
+        sine=true;
+        triangle=false;
+        square=false;
+        saw=false;
+    }else if(wave==='Triangle'){
+        sine=false;
+        triangle=true;
+        square=false;
+        saw=false;    
+    }else if(wave==='Saw'){
+        sine=false;
+        triangle=false;
+        square=false;
+        saw=true;
+    }else if(wave==='Square'){
+        sine=false;
+        triangle=false;
+        square=true;
+        saw=false;    }
+}
+
+//defining FMOsc object
+var FMOsc = function() {
+    this.cOsc = new maximJs.maxiOsc();
+    this.mOsc = new maximJs.maxiOsc();
+};
+//creating a function play for FMOsc
+//adapted from example found on CodeCircle at http://live.codecircle.com/d/tsLXAxBW23ZxvotJT
+FMOsc.prototype.play = function(freq, carrier, modulator, index) {
+    //we store sinewave value of frequency * modulator
+    var m = this.mOsc.sinewave(freq * modulator);
+    //then we use that result from the variable 
+    return this.cOsc.sinewave(freq * carrier + m * index);
+};
+
+
+function draw(){
+
+    //updating variables using slider values
+    frequency=sldr1.value();
+    carrierRatio = sldr2.value();
+    modulatorRatio = sldr3.value();
+    modulationIndex = sldr4.value();
+
+    sel.changed(selectWave);
+    
+	//displaying slider values
+    sldr1Txt.html('Wave frequency: ' + sldr1.value());
+    sldr2Txt.html('Carrier Ratio: ' + sldr2.value());
+    sldr3Txt.html('Modulator Ratio: ' + sldr3.value());
+    sldr4Txt.html('Modulation Index: ' + sldr4.value());
+
+    clear();
+    //draw wave
+    stroke(255); 
+    strokeWeight(1);
+    for (var x = 0; x < drawArr.length; x++) {
+        line(20+x*spacing, height/2 + (drawArr[x]),x*spacing, height/2 + (drawArr[x]*200));
+    }
+
+}
+
+//create FM Object
+var fm = new FMOsc();
+
+maxiAudio.play = function(){
+    counter++;  
+    //this is where we select wave types
+    if(sine){
+        wave = osc1.sinewave(frequency);
+    }else if(square){
+        wave = osc1.square(frequency);
+    }else if(triangle){
+        wave = osc1.triangle(frequency);
+    }else if(saw){
+        wave = osc1.saw(frequency);    
+    }
+
+    if(!stop){
+        // Generate sound using FMOsc object
+        this.output = fm.play(frequency, carrierRatio, modulatorRatio, modulationIndex*wave) * 0.8;  
+    }else{
+        this.output = 0;
+    }   
+    //populate draw array with output values
+    drawArr[counter%1024] = this.output;
+};
+
+  
+
+</script>
+
+
+
+
+
+
+
+
+
+
+

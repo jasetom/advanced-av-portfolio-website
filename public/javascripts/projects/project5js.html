@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html>
+
+<!--
+
+Main Project: AudioVisual Composition using Three.js by Tomas Jasevicius
+
+I've built this project by learning and studying documentation at:
+https://threejs.org/docs/
+
+Graphical user interface is built using library called dat.gui.
+https://github.com/dataarts/dat.gui
+
+Sound is played and analysed using Maximillian library:
+https://github.com/micknoise/Maximilian
+
+There is a lot of boiler-plate code especially in setup as there are quite a
+few things required to initialise all the time in order to setup scene using Three.js.
+Process goes as follow: we initialise the scene, add camera to it, lights, geometry, materials, 
+post processing shaders and then render everything onto the screen using renderer object. 
+
+References:
+
+Loading wheel in the menu:
+http://www.w3schools.com/howto/tryit.asp?filename=tryhow_css_loader5
+
+Music (Used with permission):
+SoulSonic - When you leave me
+https://coldtearrecords.bandcamp.com/track/when-you-leave-me
+
+Inspirations:
+https://www.airtightinteractive.com/news/
+
+//Inspiration for the project and tunnel graphics adapted from
+http://mrdoob.com/files/temp/xplsv_obsidian/
+
+Basic beat detection algorithm adapted from:
+http://doc.gold.ac.uk/~ma901mw/Year%203%20Project/Final%20Report/Report.pdf page 17
+
+ -->
+
+
+	<head>
+		<meta charset=utf-8>
+		<title>Main Project: AudioVisual Composition using Three.js by Tomas Jasevicius</title>
+
+		<!--Loading up some fonts for the start scene-->
+		<link href="http://fonts.googleapis.com/css?family=Oswald:700|Droid+Serif:400,700italic" rel="stylesheet" type="text/css" />
+		<link href="http://fonts.googleapis.com/css?family=Lato:300|Grand+Hotel" rel="stylesheet" type="text/css" />
+
+		<!-- Theme CSS -->
+	    <link href="../../css/advancedAv-theme.css" rel="stylesheet">
+	    <!-- Some overwrites of styling for this document -->
+		<style>
+			body{ 
+				margin: 0;
+				overflow:hidden;
+				background: #000;
+			}
+			canvas{
+				width: 100%;
+				height: 100%;
+			}
+			h1{
+				font-family: Oswald;
+				color: #fff;
+				font-size: 70px;
+			}
+			h2{
+				font-family: Lato;
+				color: #fff;
+				margin-top: -2.5em;
+				font-size: 24px;
+			}
+			h2:hover{
+				cursor: pointer;
+				cursor: hand;
+			}
+			h3{
+				font-family: Oswald;
+				color: #fff;
+				font-size: 30px;
+			}
+			h3:hover{
+				cursor: pointer;
+				cursor: hand;
+			}
+			a{
+				font-family: Lato;
+				color: #fff;
+				text-decoration: none;
+			}
+			a:hover{
+				text-decoration: underline;
+				cursor: pointer; cursor: hand;
+			}
+			p{
+				font-family: Lato;
+				color: white;
+				font-size: 0.5em;
+				margin-top: -7%;
+			}
+
+		</style>
+
+	<!-- Three.js Library-->
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r83/three.js'></script>
+
+    <!-- Three.js Librarys example to control the camera -->
+    <script src='https://threejs.org/examples/js/controls/TrackballControls.js'></script>
+
+    <!--- Three.js tweening script-->
+    <script src='https://threejs.org/examples/js/libs/tween.min.js'></script>
+
+    <!-- Three.js Library's post processing shaders -->
+    <script src='https://threejs.org/examples/js/postprocessing/EffectComposer.js'></script>
+    <script src='https://threejs.org/examples/js/postprocessing/RenderPass.js'></script>
+    <script src='https://threejs.org/examples/js/postprocessing/MaskPass.js'></script>
+    <script src='https://threejs.org/examples/js/postprocessing/ShaderPass.js'></script>
+    <script src='https://threejs.org/examples/js/postprocessing/FilmPass.js'></script>
+    <script src='https://threejs.org/examples/js/postprocessing/GlitchPass.js'></script>
+    <script src='https://threejs.org/examples/js/shaders/CopyShader.js'></script>
+    <script src='https://threejs.org/examples/js/shaders/FilmShader.js'></script>
+    <script src='https://threejs.org/examples/js/shaders/VignetteShader.js'></script>
+    <script src='https://threejs.org/examples/js/shaders/KaleidoShader.js'></script>
+    <script src='https://threejs.org/examples/js/shaders/RGBShiftShader.js'></script>
+    <script src='https://threejs.org/examples/js/shaders/DigitalGlitch.js'></script>
+
+    <!--- dat.gui Graphical User Interface library -->
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.js'></script>
+
+    <!-- Maxim.js library -->
+    <script src="javascripts/maxiLib.js"></script>
+
+	</head>
+	<body onload="loadingFunc()">
+
+		<div id="startMenu">
+			<h1>AUDIO VISUALISATION<h1>
+			<h2>by <a target="_blank" href="http://tomasj.uk" style="none">TOMAS JASEVICIUS</a></h2>
+
+			<h1>MUSIC</h1>
+			<h2><a target="_blank" href="https://coldtearrecords.bandcamp.com/track/when-you-leave-me">WHEN YOU LEAVE ME by SOULSONIC</a></h2>
+			<div id="loaderTxt">Loading</div>
+			<div id="loader"></div>
+			<div id="scrollUpDiv" style="display: none">
+				<h3 id="play">BEGIN>><h3>
+				<br>
+				<br>
+				<p>Tip: Drag your mouse to look around, scroll for zoom.</p>
+
+			</div>	
+		</div>
+		<div id="endMenu" style="display: none">
+			<br>
+			<p>Built using <a target="_blank" href="http://threejs.org">THREE.js</a> and <a href="http://	maximilian.strangeloop.co.uk/">Maxmillian</a>.</p>
+			<p>Music: <a target="_blank" href="https://coldtearrecords.bandcamp.com/track/when-you-leave-me">SoulSonic - When you leave me.</a></p><br><br><br>
+
+			<h2>ENJOYED IT?</h2>
+			<p>Try replaying and openning up the control pannel</p>
+			<p>by pressing 'H' on your keyboard for live interactions!</p>
+			<h3 id="replay">REPLAY>><h3>
+
+			
+		</div>
+
+	<script>
+
+		//Audio filename
+		var fileName = 'SoulSonic - When you leave me.mp3'
+		
+		//Maximillian variables, initialising maximillian
+		var maxiAudio = new maximJs.maxiAudio();
+		var fft = new maximJs.maxiFFT();
+		var soundTrack = new maximJs.maxiSample();
+		maxiAudio.init();
+		
+		//Setting up fft
+		var fftSize = 1024;
+		fft.setup(fftSize, 512, 256);
+		var fftProcessing;
+		var spectCentr;
+		var beatDetected;
+
+		//variables for beat detection:
+		var flux;
+		var waitTime = 10;
+		var lastFFT = new Array();
+		var threshold = 0.6;
+
+		//variables to start off with threejs scene
+		var scene, camera, cameraControls, renderer, fog;
+		var backgroundCol;
+
+		//scene lights
+		var ambientLight, pointLight;
+
+		//loading variable
+		var loading;
+		var transition = true;
+
+		//tunnel varialbes
+		var tunnelPlane, tunnelGeometry, tunnelMaterial, tunnelObject, tunnel;
+
+		//gui variable
+		var params;
+
+		//post processing effect variables
+    	var effectComposer, rgbShiftEffect, vignetteEffect, tvEffect, glitchEffect, kaleidoEffect;
+
+		//geometry variables
+		var knotGeometry, knotMaterial, knot;
+		var knotCounter;
+		var particleSystem, particleSize;
+
+		//lights for the shape flying in the middle
+		var knotPointLight1, knotPointLight2;
+
+		//spheres variables
+		var sphere, sphereMaterial, sphereGeometry;
+		var spheresArray1 = new Array();
+		var spheresArray2 = new Array();
+		var spheresArray3 = new Array();
+		var spheresGroup = new THREE.Group();
+
+		//colour variables
+		var spheresColour, bgCol, tunnelColour, knotColour, particlesColour;
+
+		//button to start playing
+		var play = false;
+
+		//for debug use this straight away
+		function begin(){
+			play = true
+			document.getElementById("startMenu").remove("startMenu");
+			document.getElementById("endMenu").style.display = "none";
+			tunnel.visible = true;
+			knot.visible = true;
+			knotCounter = 0;
+		}
+
+		//call this function when html document is loaded up 
+		function loadingFunc() {
+			dat.GUI.toggleHide();
+			setupSound();
+			//timeout so that the loading would spin
+    		loading = setTimeout(showPlay, 3000);
+		}
+		//show play button.
+		function showPlay() {
+  			document.getElementById("loader").style.display = "none";
+  			document.getElementById("loaderTxt").style.display = "none";
+  			document.getElementById("scrollUpDiv").style.display = "block";
+		}
+
+		//setting up the sound to use, take it from the uploads folder on my server.
+		function setupSound(){
+			maxiAudio.loadSample(location.protocol + '//' + location.host+'/uploads/'+fileName, soundTrack);
+		}
+
+		//just reload the page in order to replay
+		function replay(){
+			    location.reload();
+		}
+
+		//I call this function setup as I come from processing,
+		//it will initiallise required things at the beginning of the launch of the script.
+		function setup() {
+			//initialise eventhandler for window resizing
+			window.addEventListener('resize', onWindowResize, false);
+			document.getElementById("play").addEventListener('click',begin);
+			document.getElementById("replay").addEventListener('click',replay);
+
+			//initialise Gui
+			setupGui();
+
+			//setup scene
+			scene = new THREE.Scene();
+			//add fog effect to the scene
+			fog = scene.fog = new THREE.FogExp2(0x0, 0.001);//black fog
+			//setting up colours
+			bgCol = new THREE.Color(0x0);
+			spheresColour = 0x527f00;
+			tunnelColour = 0x52aa95;
+			knotColour = 0xffffff;
+			particlesColour = 0xffffff;
+
+			//setup renderer object and set its size and background color
+			renderer = new THREE.WebGLRenderer();
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			renderer.setPixelRatio(window.devicePixelRatio);
+			renderer.setClearColor(bgCol); //black
+			//add renderer object to the body of the HTML document
+			document.body.appendChild(renderer.domElement);
+
+			//setup camera
+			camera = new THREE.PerspectiveCamera(1000, window.innerWidth / window.innerHeight, 1, 2000000);
+			camera.position.z=200;
+			camera.maxDistance = 200;
+
+			//setup camera controls, again alot of boilerplate code just to iniliasize controls
+			cameraControls = new THREE.TrackballControls(camera,renderer.domElement);
+			cameraControls.rotateSpeed = 1.0;
+			cameraControls.zoomSpeed = 1.2;
+			cameraControls.panSpeed = 0.8;
+			cameraControls.noZoom = false;
+			cameraControls.noPan = false;
+			cameraControls.maxDistance = 270;
+			cameraControls.staticMoving = true;
+			cameraControls.dynamicDampingFactor = 0.3;
+			cameraControls.addEventListener('change',render);
+
+			//creating pointlight and adding it to the scene
+			pointLight = new THREE.PointLight(0xffffff,0.7);
+			pointLight.position.set(-100, 0, 100);
+			scene.add(pointLight);
+			//creating ambient light which lights up all of the scene
+			ambientLight = new THREE.AmbientLight(params.aLight, 0.9);//soft white
+			scene.add(ambientLight);
+
+			//create tunnel visuals
+			tunnel = setupTunnel();
+			scene.add(tunnel);
+			tunnel.visible = false;
+
+			//setting up spheres and storring them to the array
+			spheresArray1 = setupSpheres(44);
+			spheresArray2 = setupSpheres(44);	
+			spheresArray3 = setupSpheres(44);	
+	
+			//adding all the sphheres to the scene and make them invinsible for the starters
+			for (var i = 0; i < spheresArray1.length; i++) {
+				scene.add(spheresArray1[i]);
+				scene.add(spheresArray2[i])
+				scene.add(spheresArray3[i])
+
+				spheresArray1[i].geometry.verticesNeedUpdate = true;
+				spheresArray2[i].geometry.verticesNeedUpdate = true;
+				spheresArray3[i].geometry.verticesNeedUpdate = true;
+
+				spheresArray1[i].visible=false;
+				spheresArray2[i].visible=false;
+				spheresArray3[i].visible=false;
+			}
+			
+			//create new knot geometry
+			knotGeometry = new THREE.TorusKnotGeometry();
+			//create new material for this material
+			knotMaterial = new THREE.MeshLambertMaterial({color: 0xfffe03});
+			//finally create new mesh object named cube, add geometry and material to it.
+			knot = new THREE.Mesh(knotGeometry, knotMaterial);
+			knot.position.z = -1000;
+			knot.visible = false;
+			// once knot is created add it to the scene.
+			scene.add(knot);
+
+			knotPointLight1 = new THREE.PointLight(0xffffff,1);
+			scene.add(knotPointLight1);
+
+			//create particles into an object and add it to the scene
+			allParticles = setupParticles();
+  			scene.add(allParticles);
+  			allParticles.visible = true;
+
+			//add post-processing effects to the screen and camera
+			//creating new effect composer object
+			effectComposer = new THREE.EffectComposer(renderer);
+			//adding effect to be rendered on the screen and camera
+			effectComposer.addPass(new THREE.RenderPass(scene,camera));
+
+			//bad tv shift effect shader, create, setup, add
+    		tvEffect = new THREE.ShaderPass(THREE.FilmShader);
+    		//tv effect grayscale set to false;
+    		tvEffect.uniforms['grayscale'].value = false;
+    		effectComposer.addPass(tvEffect);
+
+    		//glitch effect shader, create, add
+			glitchEffect = new THREE.GlitchPass();
+			glitchEffect.renderToScreen = false;
+			glitchEffect.goWild = true;
+			effectComposer.addPass(glitchEffect);
+
+			//rgb shift effect shader, create, setup, add
+    		rgbShiftEffect = new THREE.ShaderPass(THREE.RGBShiftShader);
+    		rgbShiftEffect.renderToScreen = true;
+    		effectComposer.addPass(rgbShiftEffect);
+
+    		//vinette effect shader. create, setup, add
+    		vignetteEffect = new THREE.ShaderPass(THREE.VignetteShader);
+			vignetteEffect.uniforms['darkness'].value = 6.0;
+			vignetteEffect.uniforms['offset'].value = 0.6; 
+			vignetteEffect.renderToScreen = true;
+    		effectComposer.addPass(vignetteEffect);
+
+    		//kaleidoscope effect
+    		kaleidoEffect = new THREE.ShaderPass(THREE.KaleidoShader);
+    		effectComposer.addPass(kaleidoEffect);
+    		kaleidoEffect.renderToScreen = false;
+		}
+
+		//function to set up graphical user interface
+		function setupGui(){
+			//create parameters object which then be used by gui, and 
+			//as a parameter variables in the canvas.
+			params ={
+				//env parameter variables
+				bgColor: 0x0,
+				aLight: 0xffffff,
+				pLight: 0xfff00,
+				fogColor: 0x0,
+				envEnabled:true,
+				//particle parameters
+				pCol:0x527f00,
+				pRotateX: 0.0,
+				pRotateY: 0.0,
+				pRotateZ: 0.0005,
+				pEnabled:true,
+				//knot params
+				kRadius: 20,
+				kTube: 1,
+				kTubularSegments: 17,
+				kRadialSegments: 5.4,
+				kp: 8,
+				kq: 21,
+				kCol:0xfffe03,
+				kEnabled:true,
+				//tunnel params
+				tCol: 0x606060,
+				tScaleZ: 1,
+				tEnabled:true,
+				//spheres
+				spheresCol:0x527f00,
+				sEnabled:true,
+				//tv effect
+				tvnIntensit:0.4,
+				tvsIntensit:0.04,
+				tvsCount: 5000
+			
+			};
+
+			//variables to store information about env and particles
+			var env, prtcls, knot, tnnel, sphrs, shdrs, beat;
+
+			//use dat.gui lib to create new GUI object
+			var gui = new dat.GUI();
+
+			//add parameters to gui sliders and color pickers
+			//environment parameters
+			env = gui.addFolder('Environment');
+			env.add(params,'envEnabled').name('Auto action').onChange(render);
+			env.addColor(params,'bgColor').name('Background').onChange(render);
+			env.addColor(params,'aLight').name('Ambient light').onChange(render);
+			env.addColor(params,'pLight').name('Point light').onChange(render);
+			env.addColor(params,'fogColor').name('Fog colour').onChange(render);
+
+			//particle parameters
+			prtcls = gui.addFolder('Particles');
+			prtcls.add(params,'pEnabled').name('Auto action').onChange(render);
+			prtcls.addColor(params,'pCol').name('Colour').onChange(render);
+			prtcls.add(params,'pRotateX',0, 0.02).name('Rotation X').onChange(render);
+			prtcls.add(params,'pRotateY',0, 0.02).name('Rotation Y').onChange(render);
+			prtcls.add(params,'pRotateZ',0, 0.02).name('Rotation Z').onChange(render);
+
+			//knot parameters
+			knot = gui.addFolder('Shape');
+			knot.add(params,'kEnabled').name('Auto action').onChange(render);
+			knot.add(params,'kRadius',0, 100).name('Radius').onChange(render);
+			knot.add(params,'kTube',0, 50).name('Tube diameter').onChange(render);
+			knot.add(params,'kTubularSegments',0, 30).name('Tube segments').onChange(render);
+			knot.add(params,'kRadialSegments',0, 30).name('Radial segments').onChange(render);
+			knot.add(params,'kp',0, 50).name('Winds @ axis').onChange(render);
+			knot.add(params,'kq',0, 50).name('Winds @ circle').onChange(render);
+			knot.addColor(params,'kCol').name('Colour').onChange(render);
+			
+			//tunnel parameters
+			tnnel = gui.addFolder('Tunnel');
+			tnnel.add(params,'tEnabled').name('Auto action').onChange(render);
+			tnnel.addColor(params,'tCol').name('Colour').onChange(render);
+			tnnel.add(params,'tScaleZ',0.0,3.0).name('Stretch').onChange(render);
+			
+			//spheres params
+			sphrs = gui.addFolder('Spheres');
+			sphrs.add(params,'sEnabled').name('Auto action').onChange(render);
+			sphrs.addColor(params,'spheresCol').name('Colour').onChange(render);
+			
+			//bad tv effect shader
+			tv = gui.addFolder('Bad TV effect');
+			tv.add(params,'tvsCount',0.1,4).name('s count').onChange(render);
+			tv.add(params,'tvnIntensit',0.1,4).name('n intensity').onChange(render);
+			tv.add(params,'tvsIntensit',0.1,4).name('s intensity').onChange(render);
+		}
+	
+		function setupParticles() {
+		    //how many particles we want
+		    var amount = 40000;
+		     //create new geometry to hold particles as they are just individual vertices
+		    var particles = new THREE.Geometry();
+			//create vertices positions for particles
+		    for (var i = 0; i < amount; i++) {
+				//for the amount set above, generate random x y and z positions for the vertices     
+		        var xpos = Math.random() * 600-300;
+		        var ypos = Math.random() * 600-300;
+		        var zpos = Math.random() * 600-300;
+		        //create new vector3 object to hold all of the vertex positions for each of the particles       
+		        var particle = new THREE.Vector3(xpos, ypos, zpos);
+		        particle.velocity = new THREE.Vector3(0,-Math.random(),0);
+				//add each of the particles vertices to the geometry.         
+		        particles.vertices.push(particle);
+		    }
+			//as with all the objects in threejs we need to set material so we could render particles onto the screen 
+		    var pMaterial = new THREE.PointsMaterial({
+		            color: particlesColour, //yellowish
+		            size: 2, //any size for now
+		            //loading up a texture that I've made in photoshop
+		            map: new THREE.TextureLoader().load("../../uploads/particle.png"),
+  					blending: THREE.AdditiveBlending,
+  					transparent: true //so we could see through it
+  				});
+		      
+		    // add all of the vertices with material to the point cloud.
+		    allParticles = new THREE.Points(particles, pMaterial);
+		 
+		    return allParticles;  
+		}
+
+		//function to set up the tunnel in the screen
+		function setupTunnel(){
+			tunnelPlane = new THREE.PlaneGeometry(5, 5);
+			tunnelGeometry = new THREE.Geometry();
+			tunnelMaterial = new THREE.MeshLambertMaterial({
+				color: tunnelColour,
+				side: THREE.DoubleSide
+			});
+
+			tunnelObject = new THREE.Object3D();
+
+			//using for loop to draw many tunnel objects and position them
+			//using math.random() 
+			for(var i = 0; i < 400; i ++) {
+				//setting position, scale and where the geometry of the object will be looking.
+				var tunnelRadius = 50 + (Math.random() * 150);
+				tunnelObject.position.x = Math.random() - 0.5 ;
+				tunnelObject.position.y = Math.random() - 0.5;
+				tunnelObject.position.z = 0;
+				tunnelObject.position.normalize();
+				tunnelObject.position.multiplyScalar(tunnelRadius);
+				tunnelObject.lookAt(new THREE.Vector3(0,0,0));
+				tunnelObject.position.z = (i * 4)-800;
+				tunnelObject.scale.x = Math.random() * 10;
+				tunnelObject.scale.y = Math.random() * 10;
+				tunnelObject.scale.z = Math.random() * 20;
+				tunnelObject.updateMatrix();
+				tunnelGeometry.merge(tunnelPlane, tunnelObject.matrix );
+
+			}
+			return tunnel = new THREE.Mesh(tunnelGeometry,tunnelMaterial);
+		}
+
+		//setup spheres for scene1
+		function setupSpheres(amount){
+			var spheresArray = new Array();
+			//create new material and geometry
+			sphereMaterial = new THREE.MeshLambertMaterial({color: spheresColour});
+			sphereGeometry = new THREE.SphereGeometry(5, 32, 32);
+			//for loop to populate spheresArray with the spheres
+			for(var i = 0; i < amount; i ++) {
+				sphereMesh = new THREE.Mesh(sphereGeometry,sphereMaterial);
+				//place spheres in a circle using trig functions
+					var x = Math.cos(i)*200;
+					var y = Math.sin(i)*200;
+					sphereMesh.position.set(x,y,0);
+				spheresArray.push(sphereMesh);
+
+			}
+			return spheresArray;
+		}
+
+		//simple beat detection using spectral fluxuation
+		//adapted from Report of Mark Woulfe - Referenced at the top of the document.
+		function veryBasicBeatDetection(fft){
+			//it is a very simple approach of detecting beats in an fft.
+			//how it works is we take the difference between of last bin of the fft with
+			//current bin of fft and add those differences to a variable called flux.
+			//then we set the waitTime, which is just a simple counter and a threshold variable.
+			//We detect the beat by assuming that the flux(uation) is greater than the threshold and 
+			//some time (waitTime) has passed since the last detection.
+
+    	    var diff;
+			flux = 0.0;
+			
+			for(var i=0; i < fft.bins; i++) {
+				//this is how we calculate the difference between lastfft and current fft bin magnitudes
+				diff = fft.getMagnitudeDB(i) - lastFFT[i];
+				//if diference is not zero add it to the fluxtuation variable
+				if (diff > 0) {
+					flux += diff;
+			 	}
+			}
+			//adjust fluxation depending on the number of the fft bins
+			flux /= fft.bins;
+
+			//count down waitTime for the next beat detect
+			if (waitTime !=0){
+				waitTime--;
+			}
+			//this is where we check if the flux variable is higher than manually set threshold
+			if (flux > threshold && waitTime ==0){
+				beatDetected = true;
+				//this means that the beat has been detected
+				//and if so, we set these variables to change
+				setTimeout(
+					function(){
+						tvEffect.uniforms['grayscale'].value = false;
+						rgbShiftEffect.uniforms['amount'].value=1;
+
+					},100)
+				tvEffect.uniforms['grayscale'].value = true;
+				rgbShiftEffect.uniforms['amount'].value=50;
+				//we also set wait time back up for it to detect another beat
+ 				waitTime = 10;
+ 				particleSize = 3;
+			}else{
+				beatDetected = false;
+				particleSize = 0.8;
+			}
+
+			//here we just populate lastFFT array with the values of current FFT magnitudes
+			for(var j=0; j < fft.bins; j++){
+				lastFFT[j] = fft.getMagnitudeDB(j);
+			}
+
+			//Spectral Centroid detect the brightness of the sound on the fft
+			//we store it to the variable which would later be used to change the colours on the objects
+			spectCentr = fft.spectralCentroid();			
+    		
+		}
+		
+		//function to reset camera and renderer if size of the window is changed.
+		function onWindowResize() {
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			cameraControls.handleResize();
+		}
+
+		//function which disables other shaders and applies glitch effect
+		function glitchTransition(){
+			if(transition){
+				glitchEffect.renderToScreen = true;
+  				vignetteEffect.renderToScreen = false;
+    			rgbShiftEffect.renderToScreen = false;
+    			
+    			setTimeout(function(){
+    			glitchEffect.renderToScreen = false;
+    			vignetteEffect.renderToScreen = true;
+    			rgbShiftEffect.renderToScreen = true;
+    			},1000);
+    			transition = false;
+    		}
+		}
+
+
+		//kaleidoscope shader function effect
+		function kaleidoscope(){
+			//to run kaleidoscope shader we have to disable
+			//and enable bunch of other shaders so they won't interfere.
+			glitchEffect.enabled=false;
+			if(spectCentr%3<1){
+				glitchEffect.enabled=true;
+			}
+			glitchEffect.goWild = false;
+			kaleidoEffect.renderToScreen = true;
+			setTimeout(function(){
+			glitchEffect.goWild = true;
+			glitchEffect.enabled=true;
+			kaleidoEffect.renderToScreen = false;
+			},1500);
+		}
+
+		function map(x,a,b,c,d){
+    		//adapted from http://stackoverflow.com/questions/345187/math-mapping-numbers
+   			 //if variable of x is between a and b, 
+   			 //we map variable y between c and d
+    		return y = (x-a)/(b-a) * (d-c) + c; 
+		}
+
+
+		//drawing everything to the screen
+		function draw() {
+			//check if booleans are on/off for the audio reactivness
+			envBool = params.envEnabled; 
+			particlesBool = params.pEnabled;
+			knotBool = params.kEnabled;
+			tunnelBool = params.tEnabled;
+			spheresBool = params.sEnabled;
+
+			//add parameters to the gui for user control
+  			//Tv Effect
+			tvEffect.uniforms['nIntensity'].value = params.tvnIntensit;
+			tvEffect.uniforms['sIntensity'].value = params.tvsIntensit;
+			tvEffect.uniforms['sCount'].value = params.tvsCount;
+
+			//if statements to check if user can modify things around the scene using controls menu
+			if(!envBool){
+				//setting values of the following to use values from the gui;
+				ambientLight.color.setHex(params.aLight);
+				pointLight.color.setHex(params.pLight);
+				renderer.setClearColor(params.bgColor);
+				fog.color.setHex(params.fogColor);
+			}
+
+			if(!particlesBool){
+				//setting particle parameters to be used from the gui
+				allParticles.material.color.setHex(params.pCol);
+  				allParticles.rotation.y += params.pRotateY;
+  				allParticles.rotation.z += params.pRotateZ;
+  				allParticles.rotation.x += params.pRotateX;
+  			}else if(particlesBool){
+  				allParticles.rotation.z += 0.0005;
+  				allParticles.material.size = particleSize;
+  				allParticles.material.color.setHex(particlesColour);
+  			}
+  			//check if checkbox is cheked in the gui
+  			if(!tunnelBool){
+  				tunnelMaterial.color.setHex(params.tCol);
+			}else if(tunnelBool){
+				tunnelMaterial.color.setHex(tunnelColour);
+			}
+
+  			//updating camera controls
+  			cameraControls.update();
+
+  			//if play is set to true animate
+  			//this is where I build up all of my animation stages
+  			if(play){
+  				//this places spheres around tunnel(stationary spheres)
+				for (var i = 0; i < spheresArray2.length; i++) {
+  					spheresArray2[i].scale.set(fft.getMagnitudeDB(i)*0.3,fft.getMagnitudeDB(i)*0.3,fft.getMagnitudeDB(i)*0.3);
+  				spheresArray1[i].visible=true;
+				spheresArray2[i].visible=true;
+				spheresArray3[i].visible=true;
+
+				if(!spheresBool){
+					//add colour change to the spheres array2
+					spheresArray2[i].material.color.setHex(params.spheresCol);
+				}else if(spheresBool){
+					spheresArray2[i].material.color.setHex(spheresColour); 
+				}
+
+				spheresGroup.add(spheresArray2[i]);
+  				}
+
+  				//middle shape movement
+  				knot.rotation.z -=0.005;
+
+  				//if middle shape reaches 0 in z position, do this:
+  				if(knot.position.z >= 0 && knot.position.z <= 1){
+  					knot.position.z = 0;
+  					glitchTransition();
+
+
+  					//hide moving spheres
+  					for (var i = 0; i < spheresArray1.length; i++) {
+  						spheresArray1[i].visible = false;
+  						spheresArray3[i].visible = false;
+  					}
+
+  					//when shape reaches 0, timeout for a second
+  					//this leads us to a transition to a different scene
+  					setTimeout(function(){
+
+  					knotCounter++;
+  					//hide tunnel
+  					tunnel.visible = false;
+  					scene.add(spheresGroup);
+
+  					//make the shape react to fft
+  					// bascially we have to create new geometry everyframe to update its shape
+  					knot.geometry.dispose();
+  					knot.geometry = new THREE.TorusKnotGeometry(fft.getMagnitudeDB(1)*2, fft.getMagnitudeDB(5), fft.getMagnitudeDB(13)*2, 4, fft.getMagnitudeDB(9)*2,fft.getMagnitudeDB(19)*2);
+ 					//a lot of manual settings, checking the counter value and changing the shape using different parameters
+   					if(knotCounter>=1900 && knotCounter<=2850){
+  						spheresGroup.rotation.y += 0.05;
+  					}else if(knotCounter==2850){
+  						//tween object starts to rotate spheres around with a smooth motion.
+						new TWEEN.Tween(spheresGroup.rotation).to({x:spheresGroup.rotation.x += 0.05,y:0,z:spheresGroup.rotation.z += 0.5},2000).easing(TWEEN.Easing.Elastic.Out).start();
+  						knot.geometry.dispose();
+  						knot.geometry = new THREE.TorusKnotGeometry(fft.getMagnitudeDB(2)*2, fft.getMagnitudeDB(5), fft.	getMagnitudeDB(9)*2, 4, fft.getMagnitudeDB(11)*2,fft.getMagnitudeDB(44)*2);
+
+  					//adding rotation and changing how fft affets the shape
+					}else if(knotCounter>2851 && knotCounter<=3775){
+  						spheresGroup.rotation.x += 0.05;
+  						spheresGroup.rotation.z += 0.5;
+  						knot.geometry.dispose();
+  						knot.geometry = new THREE.TorusKnotGeometry(fft.getMagnitudeDB(5)*2, fft.getMagnitudeDB(2)*2, fft.	getMagnitudeDB(4)*2, 4, fft.getMagnitudeDB(9)*2,fft.getMagnitudeDB(19)*2);
+  					//stopping rotation and changing how fft affets the shape
+  					}else if(knotCounter>=3800){
+  						//smoothly stop all rotations of the spheres
+  						new TWEEN.Tween(spheresGroup.rotation).to({x:0,y:0,z:0},2000).easing(TWEEN.Easing.Elastic.Out).start();
+  						// spheresGroup.rotation.x = 0;
+  						// spheresGroup.rotation.y = 0;
+  						// spheresGroup.rotation.z = 0;
+  						knot.geometry.dispose();
+  						knot.geometry = new THREE.TorusKnotGeometry(fft.getMagnitudeDB(5)*2, fft.getMagnitudeDB(2), fft.getMagnitudeDB(4), 4, fft.getMagnitudeDB(19));  						
+  						spheresGroup.visible = false;
+
+  						transition = true;
+  						knot.position.z = 1.1;
+  						knotCounter = 0;
+  					}
+  					},300);
+  					knotMaterial.color.setHex(knotColour);
+
+  				}else if(knot.position.z > 1){
+  					glitchTransition();
+
+  					//else if middle shape position is more than 1,
+  					//do the following:
+  					//increase its position ever so slightly
+  					knot.position.z +=0.6;
+  					//show spheres again
+  					for (var i = 0; i < spheresArray1.length; i++) {
+  						spheresArray1[i].visible = true;
+  						spheresArray3[i].visible = true;
+  					}
+  					//show tunnel back again
+  					tunnel.visible = true;
+	
+  					//tunnel animation, make it spin and affected by fft
+  					tunnel.rotation.z +=0.001 * fft.getMagnitudeDB(2);
+
+  					if(!tunnelBool){
+  						tunnel.scale.z = params.tScaleZ;
+  						tunnelMaterial.color.setHex(params.tCol);
+					}else if(tunnelBool){
+						tunnelMaterial.color.setHex(tunnelColour);
+						tunnel.scale.z = map(fft.getMagnitudeDB(1),0,0.5,1,1.2);
+					}
+
+  					//move balls positions according to the fft magnitudes again
+  					for (var i = 0; i < spheresArray1.length; i++) {
+  						spheresArray1[i].scale.set(fft.getMagnitudeDB(i)*0.3,fft.getMagnitudeDB(i)*0.3,fft.getMagnitudeDB(i	)*0.3);
+  						if(!spheresBool){
+							spheresArray1[i].material.color.setHex(params.spheresCol); 
+						}else if(spheresBool){
+							spheresArray1[i].material.color.setHex(spheresColour); 
+						}
+						//set position on the z axis
+  						if(spheresArray1[i].position.z >= 340){
+  							spheresArray1[i].position.z = -(fft.getMagnitudeDB(i));
+  						}else if(spheresArray1[i].position.z <=340){
+  							spheresArray1[i].position.z += fft.getMagnitudeDB(i);
+  						}
+									
+					}
+			
+  					//move other balls positions according to the fft magnitudes too
+  					for (var i = 0; i < spheresArray3.length; i++) {
+  						spheresArray3[i].scale.set(fft.getMagnitudeDB(i)*0.3,fft.getMagnitudeDB(i)*0.3,fft.getMagnitudeDB(i	)*0.3);
+  						if(!spheresBool){
+							spheresArray3[i].material.color.setHex(params.spheresCol); 
+						}else if(spheresBool){
+							spheresArray3[i].material.color.setHex(spheresColour); 
+						}
+  						if(spheresArray3[i].position.z >= -340){
+							spheresArray3[i].position.z -= fft.getMagnitudeDB(i);
+  						}else if(spheresArray3[i].position.z <=-340){
+  							spheresArray3[i].position.z = fft.getMagnitudeDB(i);
+  						}			
+					}
+	
+  					// set up knot controlls to gui back again
+					if(!knotBool){
+						knotMaterial.color.setHex(params.kCol);
+  						// setting up knot controlls to gui
+  						// bascially we have to create new geometry everyframe to update its shape
+  						knot.geometry.dispose();
+  						knot.geometry = new THREE.TorusKnotGeometry(params.kRadius, params.kTube, params.kTubularSegments, 	params.kRadialSegments, params.kp,params.kq);
+  					}else if(knotBool){
+  						knotMaterial.color.setHex(knotColour);
+  						knot.geometry.dispose();
+  						knot.geometry = new THREE.TorusKnotGeometry(20, 2, 40, 6, 8,fft.getMagnitudeDB(4)*2);
+  					}
+  					//is shapes position is more than 1000, call the end function to display text
+  					if(knot.position.z > 1000){
+  						knot.visible = false;
+  						tunnel.visible = false;
+  						theEnd();
+  					}
+
+  				}else{
+
+  					//else if middle shape has not yet reached the 0 in the z,
+  					//do the following
+  					//increase its position ever so slightly
+  					knot.position.z +=0.36;
+
+  					//spheres visible
+  					for (var i = 0; i < spheresArray1.length; i++) {
+  						spheresArray1[i].visible = true;
+  						spheresArray3[i].visible = true;
+  					}
+  					//tunnel visible
+  					tunnel.visible = true;
+
+  					//tunnel animation, make is spin
+  					tunnel.rotation.z +=0.001 * fft.getMagnitudeDB(2);
+  					if(!tunnelBool){
+  						tunnel.scale.z = params.tScaleZ;
+  						tunnelMaterial.color.setHex(params.tCol);
+					}else if(tunnelBool){
+						tunnelMaterial.color.setHex(tunnelColour);
+						tunnel.scale.z = map(fft.getMagnitudeDB(1),0,0.5,1,1.2);
+					}
+				
+  					//this moves balls positions according to the fft magnitudes
+  					for (var i = 0; i < spheresArray1.length; i++) {
+  						spheresArray1[i].scale.set(fft.getMagnitudeDB(i)*0.3,fft.getMagnitudeDB(i)*0.3,fft.getMagnitudeDB(i)*0.3);
+  						if(!spheresBool){
+							spheresArray1[i].material.color.setHex(params.spheresCol); 
+						}else if(spheresBool){
+							spheresArray1[i].material.color.setHex(spheresColour); 
+						}
+  						if(spheresArray1[i].position.z >= 340){
+  							spheresArray1[i].position.z = -(fft.getMagnitudeDB(i));
+  						}else if(spheresArray1[i].position.z <=340){
+  							spheresArray1[i].position.z += fft.getMagnitudeDB(i);
+  						}				
+					}
+		
+  					//this moves balls positions according to the fft magnitudes too
+  					for (var i = 0; i < spheresArray3.length; i++) {
+  						spheresArray3[i].scale.set(fft.getMagnitudeDB(i)*0.3,fft.getMagnitudeDB(i)*0.3,fft.getMagnitudeDB(i)*0.3);
+  						if(!spheresBool){
+							spheresArray3[i].material.color.setHex(params.spheresCol); 
+						}else if(spheresBool){
+							spheresArray3[i].material.color.setHex(spheresColour); 
+						}
+  						if(spheresArray3[i].position.z >= -340){
+							spheresArray3[i].position.z -= fft.getMagnitudeDB(i);
+  						}else if(spheresArray3[i].position.z <=-340){
+  							spheresArray3[i].position.z = fft.getMagnitudeDB(i);
+  						}			
+					}
+
+					if(!knotBool){
+						knotMaterial.color.setHex(params.kCol);
+  						// setting up knot controlls to gui
+  						// bascially we have to create new geometry everyframe to update its shape
+  						knot.geometry.dispose();
+  						knot.geometry = new THREE.TorusKnotGeometry(params.kRadius, params.kTube, params.kTubularSegments, 	params.kRadialSegments, params.kp,params.kq);
+  					}else if(knotBool){
+  						knotMaterial.color.setHex(knotColour);
+  						//magic here2
+  						knot.geometry.dispose();
+  						knot.geometry = new THREE.TorusKnotGeometry(20, 2, 40, 6, 8,fft.getMagnitudeDB(4)*2);
+  					}
+  				}
+
+  				//call basic fft detection function
+  				veryBasicBeatDetection(fft);
+
+  				//update tweening object 
+  				TWEEN.update();
+  			}
+
+
+  			//using Spectral Centroid value from the fft
+  			//manually set colours of the animation objects depending on the brigthness of the sound
+  			if(spectCentr<400){
+  				tunnelColour = 0x9aaa52;
+  				particlesColour =0x5757d2;
+
+  			}else if(spectCentr<350){
+ 				tunnelColour = 0x5262aa;
+ 				particlesColour =0xd25798;
+
+  			}else if(spectCentr <500){
+  				tunnelColour = 0x52aa95;
+  				particlesCol = 0xffffff;
+  				spheresColour = 0xaf3985;
+  				knotColour = 0xffffff;
+  				particlesColour = 0xffffff;
+
+  			}else if(spectCentr > 500 && spectCentr < 1000){
+  				spheresColour = 0x6939af;
+  				tunnelColour = 0x5752aa;
+  				knotColour = 0xffffff;
+  				particlesColour = 0xc3d257;
+  			}else if(spectCentr > 1000 && spectCentr < 2000){
+  				spheresColour = 0x39af93;
+  				knotColour = 0xffffff;
+  				particlesColour = 0x57d2c3;
+  			}else if(spectCentr > 4000){
+  				spheresColour = 0x39af4e;
+  				knotColour = 0xffffff;
+  				particlesColour = 0x8a8e88;
+
+  				//use kaleidoscope effect everysooften so it won't get boring
+  				if(beatDetected && knotCounter > 200){
+  					kaleidoscope();
+
+  				}
+  			}
+
+  			//set light position 10px ahead of the shape
+  			knotPointLight1.position.set(knot.position.x,knot.position.y,knot.position.z+10);
+
+			//this works similarry as setInterval() that I've used in my previous projects.
+			requestAnimationFrame(draw);
+			//when calling draw, render everything to the screen.
+			render();
+
+		}
+		//call this function to show endmenu once everything has finished
+		function theEnd(){
+			document.getElementById("endMenu").style.display = "block";
+			play=false;
+		}
+		
+		function render(){
+			//we pass the objects that we want to be rendered throught effect Composer
+			//in this case it is the scene with all the meshes, camera object and post-processing shaders
+			effectComposer.render();
+					//Play maximillian audio
+		maxiAudio.play = function() {
+				//If play is true and sample is loaded
+			if(play){
+				if(soundTrack.isReady){
+					var sound = soundTrack.playOnce();
+					//Play the music track to the speakers
+					this.output = sound;
+					//If fft processes the sound, pass magnitude of the ffts 
+					//to decibels so that it could be used later in visualisations.
+					if (fft.process(sound)) {
+						fft.magsToDB();
+					}
+				}    
+			}
+		}
+		}
+
+		//Lastly, run the setup function
+		setup();
+
+		//and draw everything 60 frames per second.
+		draw();
+		
+	</script>
+	</body>
+</html>

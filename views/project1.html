@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Advanced Audio-Visual Processing Portfolio website build by Tomas Jasevicius. Goldsmiths, University of London 2016.">
+    <meta name="author" content="Tomas Jasevicius">
+
+    <title>Advanced AV Portfolio - Tomas Jasevicius </title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Theme CSS -->
+    <link href="css/advancedAv-theme.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Merriweather:400,700" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="col-lg-12">
+                <div class="page-header-project">
+                    <h1>Advanced Audio-Visual Processing</h1>
+                    <h2>by Tomas Jasevicius</h2>
+                    <br>
+
+                </div>
+                <ul class="nav nav-tabs">
+                    <li role="presentation"><a href="/" class ="glyphicon glyphicon-home"></a></li>
+                    <li role="presentation" class="active"><a>Project 1</a></li>
+                    <li role="presentation"><a href="project2.html">Project 2</a></li>
+                    <li role="presentation"><a href="project3.html">Project 3</a></li>
+                    <li role="presentation"><a href="project4.html">Project 4</a></li>
+                    <li role="presentation"><a href="project5.html">Project 5</a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <div class="project-body">
+    <div class="container">
+        <div class="col-lg-12 text-center">
+            <h3>Project 1 - Audio synthesis</h3>
+            <div class="displayProject text-center"> 
+                <div class="col-lg-12 text-center">
+                    <p class="white-text col-lg-12 text-center" style="margin-bottom: 3em;"> This project demonstrates audio synthesis using Maximillian library. Down below you can find three 30 second audio pieces generated using sine waves, sawn waves, triangle waves, filters and phasors. To generate these sounds methos such as additive synthesis, substraction synthesis and filtering were used. </p>
+                    <div class="row text-center">
+                        <div class="col-lg-4 text-center">
+                            <div class="col-lg-12 text-center round-box">
+                                <p>Example 1.</p>
+                                <canvas id ="first">></canvas>
+                                <p id="time1">00:00/00:30</p>
+                                <div class ="row" style="margin-bottom: 1em;">
+                                    <div id="play" class="btn btn-default glyphicon glyphicon-play" onclick="playMaxiSound(1);"/> </div>
+                                    <div id="stop" class="btn btn-default glyphicon glyphicon-pause" onclick="pauseMaxiSound(1);"/> </div>
+                                    <div id="stop" class="btn btn-default glyphicon glyphicon-stop" onclick="stopMaxiSound(1);"/> </div>
+                                </div>
+                                <p>Space allien game soundtrack, created using four maxi oscillators. The sound was synthesised using addition and multiplication of sine waves, sawn waves and a triangle wave.</p>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 text-center">
+                            <div class="col-lg-12 text-center round-box">
+                                <p>Example 2.</p>
+                                <canvas id ="second"></canvas>
+                                <p id="time2">00:00/00:30</p>
+                                <div class ="row" style="margin-bottom: 1em;">
+                                    <div id="play" class="btn btn-default glyphicon glyphicon-play" onclick="playMaxiSound(2);"/> </div>
+                                    <div id="stop" class="btn btn-default glyphicon glyphicon-pause" onclick="pauseMaxiSound(2);"/> </div>
+                                    <div id="stop" class="btn btn-default glyphicon glyphicon-stop" onclick="stopMaxiSound(2);"/> </div>
+                                </div>
+                                <p>This one I call "A noisy broken TV". It is made using 2 oscilators, phaser and a lores filter. The following have been used as a parameters for one another to generate this sound. </p>
+                            </div>     
+                        </div>    
+                        <div class="col-lg-4 text-center">
+                            <div class="col-lg-12 text-center round-box">
+                                <p>Example 3.</p>
+                                <canvas id ="third"></canvas>
+                                <p id="time3">00:00/00:30</p>
+                                <div class ="row" style="margin-bottom: 1em;">
+                                    <div id="play" class="btn btn-default glyphicon glyphicon-play" onclick="playMaxiSound(3);"/> </div>
+                                    <div id="stop" class="btn btn-default glyphicon glyphicon-pause" onclick="pauseMaxiSound(3);"/> </div>
+                                    <div id="stop" class="btn btn-default glyphicon glyphicon-stop" onclick="stopMaxiSound(3);"/> </div>
+                                </div> 
+                                <p>"Slow moon dance" is a piece of audio synthesised using sine waves, triangle waves, lopass filter  and a phasor. The sound is achieved using clock and combining the waves together.</p> 
+                            </div>                       
+                        </div>
+                        
+                        <div class ="col-lg-12 text-center">
+                            <a href= "https://github.com/jasetom/advanced-av-processing-portfolio/blob/master/js/projects/project1/project1.js"><div class="btn btn-default">View code on Github</div></a>
+                        </div>
+                    </div> 
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <div class="text-center" style="margin-top: 10em;">
+        <p style="color: #fff;"> © 2017 <a href="http://tomasj.uk" target="blank" style="color:#fff; text-decoration: underline;">Tomas Jasevicius</a>. Goldsmiths, University of London.</p>
+    </div>
+
+    <!-- JQuery is required by Bootstrap-->
+    <script src="javascripts/jquery-1.9.1.min.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="javascripts/bootstrap.min.js"></script>
+
+    <!-- Maxim.js Library -->
+    <script src='javascripts/maxiLib.js'></script>
+
+    <!-- Project1.js file-->
+    <script src='javascripts/projects/project1.js'></script>
+
+</body>
+
+</html>
